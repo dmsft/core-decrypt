@@ -61,8 +61,9 @@ void aes256_cbc_decrypt(unsigned int key[8], unsigned int iv[4], unsigned int ci
 void sha512_iterations(uint64_t *msg, uint64_t *state, unsigned int iterations);
 bool test_key(unsigned int key[8], unsigned int encrypted_block[4], unsigned int iv[4]);
 
-bool brute_force(int password_len, unsigned int encrypted_block[4], unsigned int iv[4], unsigned char salt[8], unsigned int iterations, uint64_t start, uint64_t end, uint64_t stride);
-bool brute_force_cl(int password_len, unsigned int encrypted_block[4], unsigned int iv[4], unsigned char salt[8], unsigned int iterations, uint64_t start, uint64_t end, uint64_t stride);
+//bool brute_force(int password_len, unsigned int encrypted_block[4], unsigned int iv[4], unsigned char salt[8], unsigned int iterations, uint64_t start, uint64_t end, uint64_t stride);
+bool brute_force_cl(int password_len, unsigned int encrypted_block[4], unsigned int iv[4], unsigned char salt[8], unsigned int iterations, uint64_t start);
+
 bool dictionary_cl(struct device_info &device, PasswordDictionary &dictionary, unsigned int encrypted_block[4], unsigned int iv[4], unsigned char salt[8], unsigned int iterations, uint64_t start, int stride, unsigned int intensity = 1000);
 std::vector<struct device_info> get_devices();
 

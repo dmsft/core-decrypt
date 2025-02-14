@@ -75,22 +75,21 @@ bool test_key(unsigned int key[8], unsigned int encrypted_block[4], unsigned int
     return pt[0] == 0x10101010 && pt[1] == 0x10101010 && pt[2] == 0x10101010 && pt[3] == 0x10101010;
 }
 
-bool brute_force(int password_len, unsigned int encrypted_block[4], unsigned int iv[4], unsigned char salt[8], unsigned int iterations, uint64_t start, uint64_t end, uint64_t stride)
-{
-    char password[12] = { 0 };
-    unsigned int key[8];
-
-    for(uint64_t i = start; i <= end; i+=stride) {
-        next_password(password, password_len, i);
-
-        password_kdf(password, password_len, iterations, salt, key);
-
-        if(test_key(key, encrypted_block, iv)) {
-            std::cout << "Found password!" << std::endl;
-            std::cout << password << std::endl;
-            return true;
-        }
-    }
-
-    return false;
-}
+//bool brute_force(int password_len, unsigned int encrypted_block[4], unsigned int iv[4], unsigned char salt[8], unsigned int iterations, uint64_t start, uint64_t end, uint64_t stride)
+//{
+//    char password[12] = { 0 };
+//    unsigned int key[8];
+//
+//    for(uint64_t i = start; i <= end; i+=stride) {
+//        next_password(password, password_len, i);
+//        password_kdf(password, password_len, iterations, salt, key);
+//
+//        if(test_key(key, encrypted_block, iv)) {
+//            std::cout << "Found password!" << std::endl;
+//            std::cout << password << std::endl;
+//            return true;
+//        }
+//    }
+//
+//    return false;
+//}
