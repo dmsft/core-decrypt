@@ -18,7 +18,8 @@ extern char _core_decrypt_cl[];
 
 std::string _kernelSource;
 
-const std::string _alphabet = "abcdefghijklmnopqrstuvwxyz";
+// const std::string _alphabet = "abcdefghijklmnopqrstuvwxyz";
+const std::string _alphabet = "0123456789";
 unsigned int _alphabet_size = (unsigned int)_alphabet.length();
 
 std::string format(const char *formatStr, double value)
@@ -327,12 +328,10 @@ static void do_dictionary(struct device_info &device, PasswordDictionary &dictio
     end_kernel = clCreateKernel(prog, "hash_end", &err);
     clCall(err);
 
-
     size_t global = device.cores * 1024;
     size_t local = 64;
 
     find_best_parameters(device, ctx, cmd, middle_kernel, global, local);
-
     initialize_device_dictionaries(ctx, cmd, &dev_words, &dev_index, &dev_offsets, &num_words, dictionary);
 
     dev_encrypted_block = clCreateBuffer(ctx, 0, sizeof(unsigned int) * 4, NULL, &err);
@@ -366,9 +365,8 @@ static void do_dictionary(struct device_info &device, PasswordDictionary &dictio
     int kernel_calls = 0;
 
     std::cout << "Running..." << std::endl;
-
-    for(uint64_t i = start; i < dictionary_size; i += global * stride) {
-
+    for (uint64_t i = start; i < dictionary_size; i += global * stride)
+    {
         // Set up the next password
         clCall(clSetKernelArg(start_kernel, 0, sizeof(cl_mem), &dev_words));
         clCall(clSetKernelArg(start_kernel, 1, sizeof(cl_mem), &dev_index));
@@ -381,11 +379,11 @@ static void do_dictionary(struct device_info &device, PasswordDictionary &dictio
         clCall(clSetKernelArg(start_kernel, 8, sizeof(int), &stride));
         clCall(clSetKernelArg(start_kernel, 9, sizeof(cl_mem), &dev_hashes));
         clCall(clEnqueueNDRangeKernel(cmd, start_kernel, 1, NULL, &global, &local, 0, NULL, NULL));
-
         clCall(clFinish(cmd));
 
         // Do hashing
-        for(unsigned int j = 0; j < middle_kernel_calls; j++) {
+        for (unsigned int j = 0; j < middle_kernel_calls; j++)
+        {
             clCall(clSetKernelArg(middle_kernel, 0, sizeof(cl_mem), &dev_hashes));
             clCall(clSetKernelArg(middle_kernel, 1, sizeof(unsigned int), &middle_iterations));
             clCall(clEnqueueNDRangeKernel(cmd, middle_kernel, 1, NULL, &global, &local, 0, NULL, NULL));
@@ -403,7 +401,7 @@ static void do_dictionary(struct device_info &device, PasswordDictionary &dictio
         clCall(clFinish(cmd));
         kernel_calls++;
 
-        if(result >= 0) {
+        if (result >= 0) {
             std::cout << "======== Password found ========" << std::endl;
             uint64_t num = i + result * stride;
             std::string password = dictionary.get_password(num);
@@ -421,7 +419,7 @@ static void do_dictionary(struct device_info &device, PasswordDictionary &dictio
         uint64_t t1 = getSystemTime() - t0;
         total_time += t1;
 
-        if(t1 >= 1800) {
+        if (t1 >= 1800) {
             std::cout << device.name.substr(0, 16) << "| "
                 << formatSeconds((unsigned int)(total_time/1000)) << " "
                 << ((kernel_calls * global) / (t1/1000)) << "/sec "
@@ -447,7 +445,8 @@ static void do_dictionary(struct device_info &device, PasswordDictionary &dictio
     clReleaseMemObject(dev_result);
 }
 
-static void do_brute_force(cl_device_id device_id, int password_len, unsigned int encrypted_block[4], unsigned int iv[4], unsigned char salt[8], unsigned int iterations, uint64_t start, uint64_t end)
+
+static void do_brute_force(cl_device_id device_id, int password_len, unsigned int encrypted_block[4], unsigned int iv[4], unsigned char salt[8], unsigned int iterations, uint64_t start)
 {
     cl_mem dev_alphabet;
     cl_mem dev_hashes;
@@ -556,13 +555,10 @@ static void do_brute_force(cl_device_id device_id, int password_len, unsigned in
     clCall(clSetKernelArg(end_kernel, 3, sizeof(unsigned int), &end_iterations));
     clCall(clSetKernelArg(end_kernel, 4, sizeof(cl_mem), &dev_result));
     clCall(clEnqueueNDRangeKernel(cmd, end_kernel, 1, NULL, &global, &local, 0, NULL, NULL));
-
     clCall(clEnqueueReadBuffer(cmd, dev_result, CL_TRUE, 0, sizeof(int), &result, 0, NULL, NULL));
-    
     clCall(clFinish(cmd));
 
-
-    if(result >= 0) {
+    if (result >= 0) {
         std::cout << "Password found!" << std::endl;
     }
 
@@ -577,19 +573,21 @@ static void do_brute_force(cl_device_id device_id, int password_len, unsigned in
     clReleaseMemObject(dev_result);
 }
 
-bool brute_force_cl(int password_len, unsigned int encrypted_block[4], unsigned int iv[4], unsigned char salt[8], unsigned int iterations, uint64_t start, uint64_t end, uint64_t stride)
+
+bool brute_force_cl(int password_len, unsigned int encrypted_block[4], unsigned int iv[4], unsigned char salt[8], unsigned int iterations, uint64_t start)
 {
     cl_device_id device = get_device(0);
+    
     load_kernel_source();
-    do_brute_force(device, password_len, encrypted_block, iv, salt, iterations, start, end);
+    do_brute_force(device, password_len, encrypted_block, iv, salt, iterations, start);
 
     return true;
 }
 
+
 bool dictionary_cl(struct device_info &device, PasswordDictionary &dictionary, unsigned int encrypted_block[4], unsigned int iv[4], unsigned char salt[8], unsigned int iterations, uint64_t start, int stride, unsigned int intensity)
 {
     load_kernel_source();
-
     do_dictionary(device, dictionary, encrypted_block, iv, salt, iterations, start, stride, intensity);
 
     return true;
