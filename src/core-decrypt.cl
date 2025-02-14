@@ -919,13 +919,13 @@ __kernel void dictionary_attack(__global char *dictionary, __global unsigned int
     }
 }
 
-__kernel void brute_force_alphabet(__global char *alphabet, int alphabet_size, int password_len, unsigned int iterations, __global unsigned char *salt, ulong start, int stride, __global ulong *state)
+__kernel void brute_force_alphabet(__global char *alphabet, int alphabet_size, int password_len, unsigned int iterations, __global unsigned char *salt, ulong start, __global ulong *state)
 {
     char password[111] = { 0 };
 
     int idx = get_global_id(0);
-
-    start += idx * stride;
+    // start += idx * stride;
+    start += idx;
 
     next_password_alpha(alphabet, alphabet_size, password, password_len, start);
 
@@ -954,7 +954,6 @@ __kernel void brute_force_alphabet(__global char *alphabet, int alphabet_size, i
     msg[15] = (password_len + 8) * 8;
 
     sha512(msg);
-
     for(unsigned int i = 0; i < iterations - 1; i++) {
         sha512_hash(msg);
     }
@@ -964,6 +963,7 @@ __kernel void brute_force_alphabet(__global char *alphabet, int alphabet_size, i
         state[idx * 8 + i] = msg[i];
     }
 }
+
 
 __kernel void hash_middle(__global ulong *state, unsigned int iterations)
 {
@@ -983,6 +983,7 @@ __kernel void hash_middle(__global ulong *state, unsigned int iterations)
         state[idx * 8 + i] = msg[i];
     }
 }
+
 
 __kernel void hash_end(__global unsigned int *encrypted_block, __global unsigned int *iv, __global ulong *state, unsigned int iterations, __global int *result)
 {
