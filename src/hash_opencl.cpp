@@ -293,7 +293,8 @@ static void do_dictionary(struct device_info &device, PasswordDictionary &dictio
     ctx = clCreateContext(0, 1, &device.id, NULL, NULL, &err);
     clCall(err);
 
-    cmd = clCreateCommandQueue(ctx, device.id, 0, &err);
+    // cmd = clCreateCommandQueue(ctx, device.id, 0, &err);
+    cmd = clCreateCommandQueueWithProperties(ctx, device.id, NULL, &err);
     clCall(err);
 
     size_t len = _kernelSource.length();
@@ -467,7 +468,8 @@ static void do_brute_force(cl_device_id device_id, int password_len, unsigned in
     clCall(err);
 
 
-    cmd = clCreateCommandQueue(ctx, device_id, 0, &err);
+    // cmd = clCreateCommandQueue(ctx, device_id, 0, &err);
+    cmd = clCreateCommandQueueWithProperties(ctx, device_id, NULL, &err);
     clCall(err);
 
     size_t len = _kernelSource.length();
