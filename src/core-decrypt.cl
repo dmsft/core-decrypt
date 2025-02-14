@@ -273,7 +273,7 @@ void aes_256_key_expand(__private const unsigned int *key, unsigned int *subkeys
 
 
 
-void aes256_cbc_decrypt(const unsigned int *key, const __global unsigned int iv[4], const __global unsigned int ciphertext[4], unsigned int plaintext[4])
+void aes256_cbc_decrypt(const __private unsigned int *key, const __global unsigned int iv[4], const __global unsigned int ciphertext[4], unsigned int plaintext[4])
 {
     unsigned int subkeys[60];
     unsigned int s0, s1, s2, s3;
