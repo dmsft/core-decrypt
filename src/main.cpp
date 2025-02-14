@@ -114,7 +114,7 @@ bool parse_int(std::string s, int *x)
 
 bool parse_uint64(std::string s, uint64_t *x)
 {
-    if(sscanf(s.c_str(), "%lld", x) != 1) {
+    if(sscanf(s.c_str(), "%lud", x) != 1) {
         return false;
     }
 
